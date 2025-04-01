@@ -1,5 +1,8 @@
 #include "game/init.h"
+#include "game/memory.h"
 #include "game/fault.h"
+#include "game/sreset.h"
+#include "dolphin/demo/DEMOStats.h"
 #include "dolphin/os.h"
 #include "dolphin/gx.h"
 #include "dolphin/dvd.h"

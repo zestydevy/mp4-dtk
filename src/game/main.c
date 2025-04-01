@@ -10,8 +10,11 @@
 #include "game/sprite.h"
 #include "game/hsfformat.h"
 #include "game/hsfman.h"
+#include "game/minigame_seq.h"
+#include "game/msm.h"
 #include "game/perf.h"
 #include "game/gamework.h"
+#include "game/sreset.h"
 
 extern FileListEntry _ovltbl[];
 u32 GlobalCounter;
