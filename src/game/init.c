@@ -50,6 +50,9 @@ void HuSysInit(GXRenderModeObj *mode)
     OSInit();
     DVDInit();
     VIInit();
+    #if TARGET_PC
+    VISetWindowTitle("Mario Party 4");
+    #endif
     PADInit();
     #if VERSION_NTSC
     if(OSGetProgressiveMode() == 1 && VIGetDTVStatus() == 1) {

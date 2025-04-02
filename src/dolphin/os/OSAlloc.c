@@ -137,6 +137,9 @@ static long DLSize(struct Cell *list)
 
 void *OSAllocFromHeap(int heap, unsigned long size)
 {
+#ifdef TARGET_PC
+    return malloc(size);
+#endif
     struct HeapDesc *hd;
     struct Cell *cell;
     struct Cell *newCell;
@@ -297,6 +300,9 @@ void *OSAllocFixed(void **rstart, void **rend)
 
 void OSFreeToHeap(int heap, void *ptr)
 {
+#ifdef TARGET_PC
+    free(ptr);
+#else
     struct HeapDesc *hd;
     struct Cell *cell;
 
@@ -310,6 +316,7 @@ void OSFreeToHeap(int heap, void *ptr)
     ASSERTMSG1(0x247, DLLookup(hd->allocated, cell), "OSFreeToHeap(): invalid pointer.");
     hd->allocated = DLExtract(hd->allocated, cell);
     hd->free = DLInsert(hd->free, cell);
+#endif
 }
 
 int OSSetCurrentHeap(int heap)

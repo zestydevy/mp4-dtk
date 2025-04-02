@@ -16,6 +16,13 @@
 #include "game/gamework.h"
 #include "game/sreset.h"
 
+#ifdef TARGET_PC
+#include "port/imgui.h"
+#include <aurora/aurora.h>
+#include <aurora/event.h>
+#include <aurora/main.h>
+#endif
+
 extern FileListEntry _ovltbl[];
 u32 GlobalCounter;
 static u32 vcheck;
@@ -40,8 +47,54 @@ static u32 fi_req;
 s32 HuDvdErrWait;
 s32 SystemInitF;
 
-void main(void)
+#ifdef TARGET_PC
+#include <stdio.h>
+void aurora_log_callback(AuroraLogLevel level, const char *message, unsigned int len)
 {
+    const char *levelStr = "??";
+    FILE *out = stdout;
+    switch (level)
+    {
+    case LOG_DEBUG:
+        levelStr = "DEBUG";
+        break;
+    case LOG_INFO:
+        levelStr = "INFO";
+        break;
+    case LOG_WARNING:
+        levelStr = "WARNING";
+        break;
+    case LOG_ERROR:
+        levelStr = "ERROR";
+        out = stderr;
+        break;
+    case LOG_FATAL:
+        levelStr = "FATAL";
+        out = stderr;
+        break;
+    }
+    fprintf(out, "[%s: %s]\n", levelStr, message);
+    if (level == LOG_FATAL)
+    {
+        fflush(out);
+        abort();
+    }
+}
+#endif
+
+#ifdef TARGET_PC
+int main(int argc, char* argv[])
+#else
+void main(void)
+#endif
+{
+#ifdef AURORA
+    const AuroraInfo auroraInfo = aurora_initialize(argc, argv,
+                                                    &(AuroraConfig){
+                                                        .appName = "Mario Party 4",
+                                                        .logCallback = &aurora_log_callback,
+                                                    });
+#endif
     u32 met0;
     u32 met1;
     s16 i;
@@ -82,12 +135,33 @@ void main(void)
         VIWaitForRetrace();
     }
     while (1) {
+#ifdef TARGET_PC
+        const AuroraEvent *event = aurora_update();
+        bool exiting = false;
+        while (event != NULL && event->type != AURORA_NONE)
+        {
+            if (event->type == AURORA_EXIT)
+            {
+                exiting = true;
+                break;
+            }
+            ++event;
+        }
+        if (exiting)
+        {
+            break;
+        }
+#endif
         retrace = VIGetRetraceCount();
         if (HuSoftResetButtonCheck() != 0 || HuDvdErrWait != 0) {
             continue;
         }
         HuPerfZero();
+
         HuPerfBegin(2);
+#ifdef TARGET_PC
+        aurora_begin_frame();
+#endif
         HuSysBeforeRender();
         GXSetGPMetric(GX_PERF0_CLIP_VTX, GX_PERF1_VERTICES);
         GXClearGPMetric();
@@ -95,10 +169,12 @@ void main(void)
         GXClearVCacheMetric();
         GXClearPixMetric();
         GXClearMemMetric();
+
         HuPerfBegin(0);
         Hu3DPreProc();
         HuPadRead();
         pfClsScr();
+
         HuPrcCall(1);
         MGSeqMain();
         HuPerfBegin(1);
@@ -106,8 +182,15 @@ void main(void)
         HuDvdErrorWatch();
         WipeExecAlways();
         HuPerfEnd(0);
+
         pfDrawFonts();
         HuPerfEnd(1);
+
+#ifdef TARGET_PC
+        imgui_main(&auroraInfo);
+        aurora_end_frame();
+#endif
+
         msmMusFdoutEnd();
         HuSysDoneRender(retrace);
         GXReadGPMetric(&met0, &met1);
@@ -116,7 +199,15 @@ void main(void)
         GXReadMemMetric(&cp_req, &tc_req, &cpu_rd_req, &cpu_wr_req, &dsp_req, &io_req, &vi_req, &pe_req, &rf_req, &fi_req);
         HuPerfEnd(2);
         GlobalCounter++;
+
+#ifdef TARGET_PC
+        frame_limiter();
+#endif
     }
+
+#ifdef TARGET_PC
+    aurora_shutdown();
+#endif
 }
 
 void HuSysVWaitSet(s16 vcount)

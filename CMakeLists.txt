@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.13)
+project(marioparty4 LANGUAGES C CXX)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
+
+if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fsanitize=address -fsanitize-address-use-after-scope")
+  set(CMAKE_PREFIX_PATH /usr)
+  set(CMAKE_LIBRARY_ARCHITECTURE i386-linux-gnu)
+  set(CMAKE_LIBRARY_PATH "/usr/lib32" CACHE PATH "")
+  set(CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX 32)
+endif ()
+
+add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
+
+add_executable(marioparty4
+    src/game/main.c
+    src/game/init.c
+#    libraries/dolphin_pc/GX.c
+#    libraries/dolphin_pc/vi.c
+#    libraries/dolphin_pc/pad_evdev.c
+#    libraries/dolphin_pc/pad_dinput.c
+#    src/port/byteswap.cpp
+    src/port/imgui.cpp
+    src/port/stubs.c
+    )
+target_compile_definitions(marioparty4 PRIVATE TARGET_PC VERSION=0)
+target_include_directories(marioparty4 PRIVATE include)
+target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main)
