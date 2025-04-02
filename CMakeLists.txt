@@ -16,6 +16,7 @@ add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
 add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 set(DOLPHIN_FILES
+
     #    libraries/dolphin_pc/GX.c
     #    libraries/dolphin_pc/vi.c
     #    libraries/dolphin_pc/pad_evdev.c
@@ -24,11 +25,12 @@ set(DOLPHIN_FILES
 
 set(GAME_FILES
     src/game/main.c
-    # src/game/init.c
+    src/game/init.c
 )
 
 set(PORT_FILES
     #    src/port/byteswap.cpp
+    src/port/dvd.c
     src/port/imgui.cpp
     src/port/stubs.c
 )

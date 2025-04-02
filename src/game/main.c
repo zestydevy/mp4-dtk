@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 void main(void)
 #endif
 {
-#ifdef AURORA
+#ifdef TARGET_PC
     const AuroraInfo auroraInfo = aurora_initialize(argc, argv,
                                                     &(AuroraConfig){
                                                         .appName = "Mario Party 4",
@@ -106,7 +106,7 @@ void main(void)
     HuDvdErrWait = 0;
     SystemInitF = 0;
     #if VERSION_NTSC
-    //HuSysInit(&GXNtsc480IntDf);
+    HuSysInit(&GXNtsc480IntDf);
     #else
     HuSysInit(&GXPal528IntDf);
     #endif
