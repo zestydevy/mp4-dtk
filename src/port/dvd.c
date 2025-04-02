@@ -110,6 +110,19 @@ BOOL DVDClose(DVDFileInfo *fileInfo)
     return TRUE;
 }
 
+BOOL DVDReadPrio(DVDFileInfo *fileInfo, void *addr, s32 length, s32 offset, s32 prio)
+{
+    FILE *f = fileInfo->cb.addr;
+    BOOL success;
+
+    printf("DVDReadPrio: length %li, offset %li\n", length, offset);
+    fseek(f, offset, SEEK_SET);
+    success = (fread(addr, length, 1, f) == 1) || feof(f);
+    if (!success)
+        puts("read failed");
+    return TRUE;
+}
+
 BOOL DVDReadAsyncPrio(DVDFileInfo *fileInfo, void *addr, s32 length, s32 offset, DVDCallback callback, s32 prio)
 {
     FILE *f = fileInfo->cb.addr;
