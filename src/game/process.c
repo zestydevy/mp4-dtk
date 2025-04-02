@@ -1,9 +1,13 @@
 #include "game/process.h"
 #include "dolphin/os.h"
+#include "game/jmp.h"
 #include "game/memory.h"
 
-
 #define FAKE_RETADDR 0xA5A5A5A5
+
+#ifdef TARGET_PC
+#include <stdio.h>
+#endif
 
 #define EXEC_NORMAL 0
 #define EXEC_SLEEP 1
@@ -81,9 +85,12 @@ Process *HuPrcCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extra_siz
     process->prio = prio;
     process->sleep_time = 0;
     process->base_sp = ((u32)HuMemMemoryAlloc(heap, stack_size, FAKE_RETADDR)) + stack_size - 8;
+#ifdef TARGET_PC
+#else
     gcsetjmp(&process->jump);
     process->jump.lr = (u32)func;
     process->jump.sp = process->base_sp;
+#endif
     process->dtor = NULL;
     process->user_data = NULL;
     LinkProcess(&processtop, process);
@@ -133,9 +140,12 @@ void HuPrcChildWatch()
     Process *curr = HuPrcCurrentGet();
     if (curr->child) {
         curr->exec = EXEC_CHILDWATCH;
+#ifdef TARGET_PC
+#else
         if (!gcsetjmp(&curr->jump)) {
             gclongjmp(&processjmpbuf, 1);
         }
+#endif
     }
 }
 
@@ -186,7 +196,10 @@ static void gcTerminateProcess(Process *process)
     }
     UnlinkProcess(&processtop, process);
     processcnt--;
+#ifdef TARGET_PC
+#else
     gclongjmp(&processjmpbuf, 2);
+#endif
 }
 
 void HuPrcEnd()
@@ -204,9 +217,12 @@ void HuPrcSleep(s32 time)
         process->exec = EXEC_SLEEP;
         process->sleep_time = time;
     }
+#ifdef TARGET_PC
+#else
     if (!gcsetjmp(&process->jump)) {
         gclongjmp(&processjmpbuf, 1);
     }
+#endif
 }
 
 void HuPrcVSleep()
@@ -235,7 +251,10 @@ void HuPrcCall(s32 tick)
     Process *process;
     s32 ret;
     processcur = processtop;
+#ifdef TARGET_PC
+#else
     ret = gcsetjmp(&processjmpbuf);
+#endif
     while (1) {
         switch (ret) {
             case 2:
@@ -255,7 +274,10 @@ void HuPrcCall(s32 tick)
         if (!process) {
             return;
         }
+#ifdef TARGET_PC
+#else
         procfunc = process->jump.lr;
+#endif
         if ((process->stat & (PROCESS_STAT_PAUSE | PROCESS_STAT_UPAUSE)) && process->exec != EXEC_KILLED) {
             ret = 1;
             continue;
@@ -283,9 +305,15 @@ void HuPrcCall(s32 tick)
                 break;
 
             case EXEC_KILLED:
+#ifdef TARGET_PC
+#else
                 process->jump.lr = (u32)HuPrcEnd;
+#endif
             case EXEC_NORMAL:
+#ifdef TARGET_PC
+#else
                 gclongjmp(&process->jump, 1);
+#endif
                 break;
         }
     }

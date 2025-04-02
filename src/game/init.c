@@ -79,12 +79,12 @@ void HuSysInit(GXRenderModeObj *mode)
     HuDvdErrDispInit(RenderMode, DemoFrameBuffer1, DemoFrameBuffer2);
     rnd_temp = frand();
     HuMemInitAll();
-    // HuAudInit();
-    //HuARInit();
-    // minimumVcount = minimumVcountf = 1.0f;
-    // worstVcount = 0;
-    // OSInitFastCast();
-    // HuCardInit();
+    HuAudInit();
+    HuARInit();
+    minimumVcount = minimumVcountf = 1.0f;
+    worstVcount = 0;
+    OSInitFastCast();
+    HuCardInit();
 }
 
 static void InitRenderMode(GXRenderModeObj *mode)
@@ -199,44 +199,44 @@ void HuSysBeforeRender()
 
 void HuSysDoneRender(s32 retrace_count)
 {
-//    s32 retrace_dist;
-//    if(DemoStatEnable) {
-//        GXDrawDone();
-//        DEMOUpdateStats(1);
-//        DEMOPrintStats();
-//        GXDrawDone();
-//        DEMOUpdateStats(0);
-//    }
-//    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-//    GXSetColorUpdate(GX_TRUE);
-//    GXDrawDone();
-//    GXCopyDisp(DemoCurrentBuffer, GX_TRUE);
-//    if(minimumVcount != 0) {
-//        retrace_dist = VIGetRetraceCount()-retrace_count;
-//        if(worstVcount < retrace_dist) {
-//            worstVcount = retrace_dist;
-//        }
-//        while(VIGetRetraceCount()-retrace_count < minimumVcount-1) {
-//            VIWaitForRetrace();
-//        }
-//    }
-//    SwapBuffers();
+    s32 retrace_dist;
+    if(DemoStatEnable) {
+        GXDrawDone();
+        DEMOUpdateStats(1);
+        DEMOPrintStats();
+        GXDrawDone();
+        DEMOUpdateStats(0);
+    }
+    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GXSetColorUpdate(GX_TRUE);
+    GXDrawDone();
+    GXCopyDisp(DemoCurrentBuffer, GX_TRUE);
+    if(minimumVcount != 0) {
+        retrace_dist = VIGetRetraceCount()-retrace_count;
+        if(worstVcount < retrace_dist) {
+            worstVcount = retrace_dist;
+        }
+        while(VIGetRetraceCount()-retrace_count < minimumVcount-1) {
+            VIWaitForRetrace();
+        }
+    }
+    SwapBuffers();
 }
 
 static void SwapBuffers()
 {
-//    VISetNextFrameBuffer(DemoCurrentBuffer);
-//    if(FirstFrame) {
-//        VISetBlack(GX_FALSE);
-//        FirstFrame = FALSE;
-//    }
-//    VIFlush();
-//    VIWaitForRetrace();
-//    if(DemoCurrentBuffer == DemoFrameBuffer1) {
-//        DemoCurrentBuffer = DemoFrameBuffer2;
-//    } else {
-//        DemoCurrentBuffer = DemoFrameBuffer1;
-//    }
+    VISetNextFrameBuffer(DemoCurrentBuffer);
+    if(FirstFrame) {
+        VISetBlack(GX_FALSE);
+        FirstFrame = FALSE;
+    }
+    VIFlush();
+    VIWaitForRetrace();
+    if(DemoCurrentBuffer == DemoFrameBuffer1) {
+        DemoCurrentBuffer = DemoFrameBuffer2;
+    } else {
+        DemoCurrentBuffer = DemoFrameBuffer1;
+    }
 }
 
 static void LoadMemInfo()

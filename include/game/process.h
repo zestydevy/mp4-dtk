@@ -2,8 +2,13 @@
 #define _GAME_PROCESS_H
 
 #include "dolphin/types.h"
-#include "game/jmp.h"
 
+#ifdef TARGET_PC
+#include <setjmp.h>
+typedef int JMPBUF;
+#else
+#include "game/jmp.h"
+#endif
 
 #define PROCESS_STAT_PAUSE 0x1
 #define PROCESS_STAT_UPAUSE 0x2

@@ -21,6 +21,7 @@ set(DOLPHIN_FILES
 )
 
 set(GAME_FILES
+    src/game/card.c
     src/game/fault.c
     src/game/frand.c
     src/game/main.c

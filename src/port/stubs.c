@@ -24,6 +24,12 @@ s32 CARDCancel(CARDFileInfo *fileInfo)
     return 0;
 }
 
+s32 CARDCheck(s32 chan)
+{
+    puts("CARDCheck is a stub");
+    return 0;
+}
+
 s32 CARDCheckAsync(s32 chan, CARDCallback callback)
 {
     puts("CARDCheckAsync is a stub");
@@ -33,6 +39,12 @@ s32 CARDCheckAsync(s32 chan, CARDCallback callback)
 s32 CARDClose(CARDFileInfo *fileInfo)
 {
     puts("CARDClose is a stub");
+    return 0;
+}
+
+s32 CARDCreate(s32 chan, const char *fileName, u32 size, CARDFileInfo *fileInfo)
+{
+    puts("CARDCreate is a stub");
     return 0;
 }
 
@@ -66,6 +78,12 @@ s32 CARDFastOpen(s32 chan, s32 fileNo, CARDFileInfo *fileInfo)
     return 0;
 }
 
+s32 CARDFormat(s32 chan)
+{
+    puts("CARDFormat is a stub");
+    return 0;
+}
+
 s32 CARDFreeBlocks(s32 chan, s32 *byteNotUsed, s32 *filesNotUsed)
 {
     puts("CARDFreeBlocks is a stub");
@@ -81,6 +99,12 @@ s32 CARDGetResultCode(s32 chan)
 s32 CARDGetStatus(s32 chan, s32 fileNo, CARDStat *stat)
 {
     puts("CARDGetStatus is a stub");
+    return 0;
+}
+
+s32 CARDGetSectorSize(s32 chan, u32 *size)
+{
+    puts("CARDGetSectorSize is a stub");
     return 0;
 }
 
@@ -110,6 +134,12 @@ s32 CARDOpen(s32 chan, const char *fileName, CARDFileInfo *fileInfo)
 s32 CARDProbeEx(s32 chan, s32 *memSize, s32 *sectorSize)
 {
     puts("CARDProbeEx is a stub");
+    return 0;
+}
+
+s32 CARDRead(CARDFileInfo *fileInfo, void *addr, s32 length, s32 offset)
+{
+    puts("CARDRead is a stub");
     return 0;
 }
 
@@ -143,6 +173,12 @@ s32 CARDUnmount(s32 chan)
     return 0;
 }
 
+s32 CARDWrite(CARDFileInfo *fileInfo, const void *addr, s32 length, s32 offset)
+{
+    puts("CARDWrite is a stub");
+    return 0;
+}
+
 s32 CARDWriteAsync(CARDFileInfo *fileInfo, const void *addr, s32 length, s32 offset, CARDCallback callback)
 {
     puts("CARDWriteAsync is a stub");
@@ -173,6 +209,16 @@ void DCInvalidateRange(void *addr, u32 nBytes)
 void DCStoreRange(void *addr, u32 nBytes)
 {
     puts("DCStoreRange is a stub");
+}
+
+void DEMOUpdateStats(unsigned char inc)
+{
+    puts("DEMOUpdateStats is a stub");
+}
+
+void DEMOPrintStats(void)
+{
+    puts("DEMOPrintStats is a stub");
 }
 
 s32 DVDCancel(DVDCommandBlock *block)
@@ -401,6 +447,12 @@ void VIConfigurePan(u16 xOrg, u16 yOrg, u16 width, u16 height)
     puts("VIConfigurePan is a stub");
 }
 
+u32 VIGetRetraceCount()
+{
+    puts("VIGetRetraceCount is a stub");
+    return 0; // TODO this might be important
+}
+
 u32 VIGetNextField()
 {
     puts("VIGetNextField is a stub");
@@ -468,3 +520,5 @@ OSInterruptMask __OSUnmaskInterrupts(OSInterruptMask mask)
 
 // Hudson
 void HuDvdErrDispInit(GXRenderModeObj *rmode, void *xfb1, void *xfb2) { }
+void HuAudInit() { }
+void HuARInit() { }
