@@ -13,6 +13,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Linux)
 endif ()
 
 add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
+add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 add_executable(marioparty4
     src/game/main.c
@@ -27,4 +28,4 @@ add_executable(marioparty4
     )
 target_compile_definitions(marioparty4 PRIVATE TARGET_PC VERSION=0)
 target_include_directories(marioparty4 PRIVATE include)
-target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main)
+target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main musyx)
