@@ -12,6 +12,10 @@ extern "C"
 #include <numeric>
 #include <thread>
 
+#if _WIN32
+#include "Windows.h"
+#endif
+
 static bool m_frameRate = true;
 static bool m_pipelineInfo = true;
 static bool m_graphicsBackend = true;

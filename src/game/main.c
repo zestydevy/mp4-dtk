@@ -106,11 +106,11 @@ void main(void)
     HuDvdErrWait = 0;
     SystemInitF = 0;
     #if VERSION_NTSC
-    HuSysInit(&GXNtsc480IntDf);
+    //HuSysInit(&GXNtsc480IntDf);
     #else
     HuSysInit(&GXPal528IntDf);
     #endif
-    HuPrcInit();
+    /*HuPrcInit();
     HuPadInit();
     GWInit();
     pfInit();
@@ -133,7 +133,7 @@ void main(void)
     if (VIGetNextField() == 0) {
         OSReport("VI_FIELD_BELOW\n");
         VIWaitForRetrace();
-    }
+    }*/
     while (1) {
 #ifdef TARGET_PC
         const AuroraEvent *event = aurora_update();
@@ -152,17 +152,17 @@ void main(void)
             break;
         }
 #endif
-        retrace = VIGetRetraceCount();
+        /*retrace = VIGetRetraceCount();
         if (HuSoftResetButtonCheck() != 0 || HuDvdErrWait != 0) {
             continue;
-        }
-        HuPerfZero();
+        }*/
+        //HuPerfZero();
 
-        HuPerfBegin(2);
+        //HuPerfBegin(2);
 #ifdef TARGET_PC
         aurora_begin_frame();
 #endif
-        HuSysBeforeRender();
+       /* HuSysBeforeRender();
         GXSetGPMetric(GX_PERF0_CLIP_VTX, GX_PERF1_VERTICES);
         GXClearGPMetric();
         GXSetVCacheMetric(GX_VC_ALL);
@@ -184,21 +184,21 @@ void main(void)
         HuPerfEnd(0);
 
         pfDrawFonts();
-        HuPerfEnd(1);
+        HuPerfEnd(1);*/
 
 #ifdef TARGET_PC
         imgui_main(&auroraInfo);
         aurora_end_frame();
 #endif
 
-        msmMusFdoutEnd();
+        /*msmMusFdoutEnd();
         HuSysDoneRender(retrace);
         GXReadGPMetric(&met0, &met1);
         GXReadVCacheMetric(&vcheck, &vmiss, &vstall);
         GXReadPixMetric(&top_pixels_in, &top_pixels_out, &bot_pixels_in, &bot_pixels_out, &clr_pixels_in, &total_copy_clks);
         GXReadMemMetric(&cp_req, &tc_req, &cpu_rd_req, &cpu_wr_req, &dsp_req, &io_req, &vi_req, &pe_req, &rf_req, &fi_req);
         HuPerfEnd(2);
-        GlobalCounter++;
+        GlobalCounter++;*/
 
 #ifdef TARGET_PC
         frame_limiter();
@@ -210,16 +210,16 @@ void main(void)
 #endif
 }
 
-void HuSysVWaitSet(s16 vcount)
-{
-    minimumVcount = vcount;
-    minimumVcountf = vcount;
-}
-
-s16 HuSysVWaitGet(s16 param)
-{
-    return (s16) minimumVcount;
-}
+//void HuSysVWaitSet(s16 vcount)
+//{
+//    minimumVcount = vcount;
+//    minimumVcountf = vcount;
+//}
+//
+//s16 HuSysVWaitGet(s16 param)
+//{
+//    return (s16) minimumVcount;
+//}
 
 s32 rnd_seed = 0x0000D9ED;
 

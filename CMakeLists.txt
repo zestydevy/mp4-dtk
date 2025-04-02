@@ -15,17 +15,30 @@ endif ()
 add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
 add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
-add_executable(marioparty4
+set(DOLPHIN_FILES
+    #    libraries/dolphin_pc/GX.c
+    #    libraries/dolphin_pc/vi.c
+    #    libraries/dolphin_pc/pad_evdev.c
+    #    libraries/dolphin_pc/pad_dinput.c
+)
+
+set(GAME_FILES
     src/game/main.c
-    src/game/init.c
-#    libraries/dolphin_pc/GX.c
-#    libraries/dolphin_pc/vi.c
-#    libraries/dolphin_pc/pad_evdev.c
-#    libraries/dolphin_pc/pad_dinput.c
-#    src/port/byteswap.cpp
+    # src/game/init.c
+)
+
+set(PORT_FILES
+    #    src/port/byteswap.cpp
     src/port/imgui.cpp
     src/port/stubs.c
-    )
+)
+
+source_group("Dolphin" FILES ${DOLPHIN_FILES})
+source_group("Game" FILES ${GAME_FILES})
+source_group("Port" FILES ${PORT_FILES})
+
+add_executable(marioparty4 ${DOLPHIN_FILES} ${GAME_FILES} ${PORT_FILES})
 target_compile_definitions(marioparty4 PRIVATE TARGET_PC VERSION=0)
+target_compile_definitions(musyx PRIVATE MUSY_VERSION_MAJOR=1 MUSY_VERSION_MINOR=5 MUSY_VERSION_PATCH=4)
 target_include_directories(marioparty4 PRIVATE include)
 target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main musyx)
