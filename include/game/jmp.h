@@ -3,7 +3,7 @@
 
 #include "dolphin.h"
 
-typedef struct jump_buf {
+typedef struct JMPBUF {
     u32 lr;
     u32 cr;
     u32 sp;
@@ -11,9 +11,9 @@ typedef struct jump_buf {
     u32 pad;
     u32 regs[19];
     double flt_regs[19];
-} jmp_buf;
+} JMPBUF;
 
-s32 gcsetjmp(jmp_buf *jump);
-s32 gclongjmp(jmp_buf *jump, s32 status);
+s32 gcsetjmp(JMPBUF *jump);
+s32 gclongjmp(JMPBUF *jump, s32 status);
 
 #endif

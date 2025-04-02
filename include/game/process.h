@@ -1,8 +1,9 @@
 #ifndef _GAME_PROCESS_H
 #define _GAME_PROCESS_H
 
-#include "game/jmp.h"
 #include "dolphin/types.h"
+#include "game/jmp.h"
+
 
 #define PROCESS_STAT_PAUSE 0x1
 #define PROCESS_STAT_UPAUSE 0x2
@@ -22,7 +23,7 @@ typedef struct process {
     u16 prio;
     s32 sleep_time;
     u32 base_sp;
-    jmp_buf jump;
+    JMPBUF jump;
     void (*dtor)(void);
     void *user_data;
 } Process;

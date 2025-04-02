@@ -1,6 +1,7 @@
 #include "game/process.h"
-#include "game/memory.h"
 #include "dolphin/os.h"
+#include "game/memory.h"
+
 
 #define FAKE_RETADDR 0xA5A5A5A5
 
@@ -9,7 +10,7 @@
 #define EXEC_CHILDWATCH 2
 #define EXEC_KILLED 3
 
-static jmp_buf processjmpbuf;
+static JMPBUF processjmpbuf;
 static Process *processtop;
 static Process *processcur;
 static u16 processcnt;
@@ -21,8 +22,9 @@ void HuPrcInit(void)
     processtop = NULL;
 }
 
-static void LinkProcess(Process** root, Process* process) {
-    Process* src_process = *root;
+static void LinkProcess(Process **root, Process *process)
+{
+    Process *src_process = *root;
 
     if (src_process && (src_process->prio >= process->prio)) {
         while (src_process->next && src_process->next->prio >= process->prio) {
@@ -35,7 +37,8 @@ static void LinkProcess(Process** root, Process* process) {
         if (process->next) {
             process->next->prev = process;
         }
-    } else {
+    }
+    else {
         process->next = (*root);
         process->prev = NULL;
         *root = process;
@@ -44,13 +47,15 @@ static void LinkProcess(Process** root, Process* process) {
         }
     }
 }
-static void UnlinkProcess(Process **root, Process *process) {
+static void UnlinkProcess(Process **root, Process *process)
+{
     if (process->next) {
         process->next->prev = process->prev;
     }
     if (process->prev) {
         process->prev->next = process->next;
-    } else {
+    }
+    else {
         *root = process->next;
     }
 }
@@ -60,13 +65,11 @@ Process *HuPrcCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extra_siz
     Process *process;
     s32 alloc_size;
     void *heap;
-    if(stack_size == 0) {
+    if (stack_size == 0) {
         stack_size = 2048;
     }
-    alloc_size = HuMemMemoryAllocSizeGet(sizeof(Process))
-                    +HuMemMemoryAllocSizeGet(stack_size)
-                    +HuMemMemoryAllocSizeGet(extra_size);
-    if(!(heap = HuMemDirectMalloc(HEAP_SYSTEM, alloc_size))) {
+    alloc_size = HuMemMemoryAllocSizeGet(sizeof(Process)) + HuMemMemoryAllocSizeGet(stack_size) + HuMemMemoryAllocSizeGet(extra_size);
+    if (!(heap = HuMemDirectMalloc(HEAP_SYSTEM, alloc_size))) {
         OSReport("process> malloc error size %d\n", alloc_size);
         return NULL;
     }
@@ -77,7 +80,7 @@ Process *HuPrcCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extra_siz
     process->stat = 0;
     process->prio = prio;
     process->sleep_time = 0;
-    process->base_sp = ((u32)HuMemMemoryAlloc(heap, stack_size, FAKE_RETADDR))+stack_size-8;
+    process->base_sp = ((u32)HuMemMemoryAlloc(heap, stack_size, FAKE_RETADDR)) + stack_size - 8;
     gcsetjmp(&process->jump);
     process->jump.lr = (u32)func;
     process->jump.sp = process->base_sp;
@@ -93,7 +96,7 @@ Process *HuPrcCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extra_siz
 void HuPrcChildLink(Process *parent, Process *child)
 {
     HuPrcChildUnlink(child);
-    if(parent->child) {
+    if (parent->child) {
         parent->child->first_child = child;
     }
     child->next_child = parent->child;
@@ -104,13 +107,14 @@ void HuPrcChildLink(Process *parent, Process *child)
 
 void HuPrcChildUnlink(Process *process)
 {
-    if(process->parent) {
-        if(process->next_child) {
+    if (process->parent) {
+        if (process->next_child) {
             process->next_child->first_child = process->first_child;
         }
-        if(process->first_child) {
+        if (process->first_child) {
             process->first_child->next_child = process->next_child;
-        } else {
+        }
+        else {
             process->parent->child = process->next_child;
         }
         process->parent = NULL;
@@ -127,9 +131,9 @@ Process *HuPrcChildCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extr
 void HuPrcChildWatch()
 {
     Process *curr = HuPrcCurrentGet();
-    if(curr->child) {
+    if (curr->child) {
         curr->exec = EXEC_CHILDWATCH;
-        if(!gcsetjmp(&curr->jump)) {
+        if (!gcsetjmp(&curr->jump)) {
             gclongjmp(&processjmpbuf, 1);
         }
     }
@@ -142,18 +146,19 @@ Process *HuPrcCurrentGet()
 
 static s32 SetKillStatusProcess(Process *process)
 {
-    if(process->exec != EXEC_KILLED) {
+    if (process->exec != EXEC_KILLED) {
         HuPrcWakeup(process);
         process->exec = EXEC_KILLED;
         return 0;
-    } else {
+    }
+    else {
         return -1;
     }
 }
 
 s32 HuPrcKill(Process *process)
 {
-    if(process == NULL) {
+    if (process == NULL) {
         process = HuPrcCurrentGet();
     }
     HuPrcChildKill(process);
@@ -164,8 +169,8 @@ s32 HuPrcKill(Process *process)
 void HuPrcChildKill(Process *process)
 {
     Process *child = process->child;
-    while(child) {
-        if(child->child) {
+    while (child) {
+        if (child->child) {
             HuPrcChildKill(child);
         }
         SetKillStatusProcess(child);
@@ -176,7 +181,7 @@ void HuPrcChildKill(Process *process)
 
 static void gcTerminateProcess(Process *process)
 {
-    if(process->dtor) {
+    if (process->dtor) {
         process->dtor();
     }
     UnlinkProcess(&processtop, process);
@@ -195,11 +200,11 @@ void HuPrcEnd()
 void HuPrcSleep(s32 time)
 {
     Process *process = HuPrcCurrentGet();
-    if(time != 0 && process->exec != EXEC_KILLED) {
+    if (time != 0 && process->exec != EXEC_KILLED) {
         process->exec = EXEC_SLEEP;
         process->sleep_time = time;
     }
-    if(!gcsetjmp(&process->jump)) {
+    if (!gcsetjmp(&process->jump)) {
         gclongjmp(&processjmpbuf, 1);
     }
 }
@@ -231,49 +236,52 @@ void HuPrcCall(s32 tick)
     s32 ret;
     processcur = processtop;
     ret = gcsetjmp(&processjmpbuf);
-    while(1) {
-        switch(ret) {
+    while (1) {
+        switch (ret) {
             case 2:
                 HuMemDirectFree(processcur->heap);
             case 1:
-                if(((u8 *)(processcur->heap))[4] != 165) {
+                if (((u8 *)(processcur->heap))[4] != 165) {
                     printf("stack overlap error.(process pointer %x)\n", processcur);
-                    while(1);
-                } else {
+                    while (1)
+                        ;
+                }
+                else {
                     processcur = processcur->next;
                 }
                 break;
         }
         process = processcur;
-        if(!process) {
+        if (!process) {
             return;
         }
         procfunc = process->jump.lr;
-        if((process->stat & (PROCESS_STAT_PAUSE|PROCESS_STAT_UPAUSE)) && process->exec != EXEC_KILLED) {
+        if ((process->stat & (PROCESS_STAT_PAUSE | PROCESS_STAT_UPAUSE)) && process->exec != EXEC_KILLED) {
             ret = 1;
             continue;
         }
-        switch(process->exec) {
+        switch (process->exec) {
             case EXEC_SLEEP:
-                if(process->sleep_time > 0) {
+                if (process->sleep_time > 0) {
                     process->sleep_time -= tick;
-                    if(process->sleep_time <= 0) {
+                    if (process->sleep_time <= 0) {
                         process->sleep_time = 0;
                         process->exec = EXEC_NORMAL;
                     }
                 }
                 ret = 1;
                 break;
-                
+
             case EXEC_CHILDWATCH:
-                if(process->child) {
+                if (process->child) {
                     ret = 1;
-                } else {
+                }
+                else {
                     process->exec = EXEC_NORMAL;
                     ret = 0;
                 }
                 break;
-                
+
             case EXEC_KILLED:
                 process->jump.lr = (u32)HuPrcEnd;
             case EXEC_NORMAL:
@@ -307,20 +315,21 @@ void HuPrcResetStat(Process *process, u16 value)
 void HuPrcAllPause(s32 flag)
 {
     Process *process = processtop;
-    if(flag) {
-        while(process != NULL) {
-            if(!(process->stat & PROCESS_STAT_PAUSE_EN)) {
+    if (flag) {
+        while (process != NULL) {
+            if (!(process->stat & PROCESS_STAT_PAUSE_EN)) {
                 HuPrcSetStat(process, PROCESS_STAT_PAUSE);
             }
-            
+
             process = process->next;
         }
-    } else {
-        while(process != NULL) {
-            if(process->stat & PROCESS_STAT_PAUSE) {
+    }
+    else {
+        while (process != NULL) {
+            if (process->stat & PROCESS_STAT_PAUSE) {
                 HuPrcResetStat(process, PROCESS_STAT_PAUSE);
             }
-            
+
             process = process->next;
         }
     }
@@ -329,20 +338,21 @@ void HuPrcAllPause(s32 flag)
 void HuPrcAllUPause(s32 flag)
 {
     Process *process = processtop;
-    if(flag) {
-        while(process != NULL) {
-            if(!(process->stat & PROCESS_STAT_UPAUSE_EN)) {
+    if (flag) {
+        while (process != NULL) {
+            if (!(process->stat & PROCESS_STAT_UPAUSE_EN)) {
                 HuPrcSetStat(process, PROCESS_STAT_UPAUSE);
             }
-            
+
             process = process->next;
         }
-    } else {
-        while(process != NULL) {
-            if(process->stat & PROCESS_STAT_UPAUSE) {
+    }
+    else {
+        while (process != NULL) {
+            if (process->stat & PROCESS_STAT_UPAUSE) {
                 HuPrcResetStat(process, PROCESS_STAT_UPAUSE);
             }
-            
+
             process = process->next;
         }
     }
