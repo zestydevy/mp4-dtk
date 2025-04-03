@@ -28,6 +28,7 @@ set(GAME_FILES
     src/game/malloc.c
     src/game/memory.c
     src/game/init.c
+    src/game/process.c
 )
 
 set(PORT_FILES

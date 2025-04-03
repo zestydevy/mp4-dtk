@@ -84,13 +84,10 @@ Process *HuPrcCreate(void (*func)(void), u16 prio, u32 stack_size, s32 extra_siz
     process->stat = 0;
     process->prio = prio;
     process->sleep_time = 0;
-    process->base_sp = ((u32)HuMemMemoryAlloc(heap, stack_size, FAKE_RETADDR)) + stack_size - 8;
-#ifdef TARGET_PC
-#else
-    gcsetjmp(&process->jump);
-    process->jump.lr = (u32)func;
-    process->jump.sp = process->base_sp;
-#endif
+    process->base_sp = ((size_t)HuMemMemoryAlloc(heap, stack_size, FAKE_RETADDR)) + stack_size - 8;
+    SETJMP(process->jump);
+    SETJMP_SET_IP(process->jump, func);
+    SETJMP_SET_SP(process->jump, process->base_sp);
     process->dtor = NULL;
     process->user_data = NULL;
     LinkProcess(&processtop, process);
@@ -140,12 +137,10 @@ void HuPrcChildWatch()
     Process *curr = HuPrcCurrentGet();
     if (curr->child) {
         curr->exec = EXEC_CHILDWATCH;
-#ifdef TARGET_PC
-#else
-        if (gcsetjmp(&curr->jump) == 0) {
-            gclongjmp(&processjmpbuf, 1);
+        if (SETJMP(curr->jump) == 0)
+        {
+            LONGJMP(processjmpbuf, 1);
         }
-#endif
     }
 }
 
@@ -196,10 +191,7 @@ static void gcTerminateProcess(Process *process)
     }
     UnlinkProcess(&processtop, process);
     processcnt--;
-#ifdef TARGET_PC
-#else
-    gclongjmp(&processjmpbuf, 2);
-#endif
+    longjmp(processjmpbuf, 2);
 }
 
 void HuPrcEnd()
@@ -217,12 +209,9 @@ void HuPrcSleep(s32 time)
         process->exec = EXEC_SLEEP;
         process->sleep_time = time;
     }
-#ifdef TARGET_PC
-#else
-    if (gcsetjmp(&process->jump) == 0) {
-        gclongjmp(&processjmpbuf, 1);
+    if (SETJMP(process->jump) == 0) {
+        LONGJMP(processjmpbuf, 1);
     }
-#endif
 }
 
 void HuPrcVSleep()
@@ -251,15 +240,15 @@ void HuPrcCall(s32 tick)
     Process *process;
     s32 ret;
     processcur = processtop;
-#ifdef TARGET_PC
-#else
-    ret = gcsetjmp(&processjmpbuf);
-#endif
+    ret = setjmp(processjmpbuf);
     while (1) {
         switch (ret) {
             case 2:
                 HuMemDirectFree(processcur->heap);
             case 1:
+                #ifdef TARGET_PC
+                processcur = processcur->next;
+                #else
                 if (((u8 *)(processcur->heap))[4] != 165) {
                     printf("stack overlap error.(process pointer %x)\n", processcur);
                     while (1)
@@ -268,6 +257,7 @@ void HuPrcCall(s32 tick)
                 else {
                     processcur = processcur->next;
                 }
+                #endif
                 break;
         }
         process = processcur;
@@ -305,15 +295,9 @@ void HuPrcCall(s32 tick)
                 break;
 
             case EXEC_KILLED:
-#ifdef TARGET_PC
-#else
-                process->jump.lr = (u32)HuPrcEnd;
-#endif
+                SETJMP_SET_IP(process->jump, HuPrcEnd);
             case EXEC_NORMAL:
-#ifdef TARGET_PC
-#else
-                gclongjmp(&process->jump, 1);
-#endif
+                LONGJMP(process->jump, 1);
                 break;
         }
     }

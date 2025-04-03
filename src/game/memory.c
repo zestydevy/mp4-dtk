@@ -31,17 +31,17 @@ void *HuMemHeapInit(void *ptr, s32 size)
     return block;
 }
 
-void *HuMemMemoryAllocNum(void *heap_ptr, s32 size, u32 num, u32 retaddr)
+void *HuMemMemoryAllocNum(void *heap_ptr, s32 size, u32 num, size_t retaddr)
 {
     return HuMemMemoryAlloc2(heap_ptr, size, num, retaddr);
 }
 
-void *HuMemMemoryAlloc(void *heap_ptr, s32 size, u32 retaddr)
+void *HuMemMemoryAlloc(void *heap_ptr, s32 size, size_t retaddr)
 {
     return HuMemMemoryAlloc2(heap_ptr, size, -256, retaddr);
 }
 
-static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, u32 retaddr)
+static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, size_t retaddr)
 {
     s32 alloc_size = MEM_ALLOC_SIZE(size);
     struct memory_block *block = heap_ptr;
@@ -72,7 +72,7 @@ static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, u32 retaddr)
     return NULL;
 }
 
-void HuMemMemoryFreeNum(void *heap_ptr, u32 num, u32 retaddr)
+void HuMemMemoryFreeNum(void *heap_ptr, u32 num, size_t retaddr)
 {
     struct memory_block *block = heap_ptr;
     do {
@@ -90,7 +90,7 @@ static void HuMemTailMemoryAlloc2() //Required for string literal
     OSReport("memory allocation(tail) error.\n");
 }
 
-void HuMemMemoryFree(void *ptr, u32 retaddr)
+void HuMemMemoryFree(void *ptr, size_t retaddr)
 {
     struct memory_block *block;
     if(!ptr) {
