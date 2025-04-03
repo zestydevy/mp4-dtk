@@ -14,7 +14,7 @@
 #define EXEC_CHILDWATCH 2
 #define EXEC_KILLED 3
 
-static JMPBUF processjmpbuf;
+static jmp_buf processjmpbuf;
 static Process *processtop;
 static Process *processcur;
 static u16 processcnt;
@@ -142,7 +142,7 @@ void HuPrcChildWatch()
         curr->exec = EXEC_CHILDWATCH;
 #ifdef TARGET_PC
 #else
-        if (!gcsetjmp(&curr->jump)) {
+        if (gcsetjmp(&curr->jump) == 0) {
             gclongjmp(&processjmpbuf, 1);
         }
 #endif
@@ -219,7 +219,7 @@ void HuPrcSleep(s32 time)
     }
 #ifdef TARGET_PC
 #else
-    if (!gcsetjmp(&process->jump)) {
+    if (gcsetjmp(&process->jump) == 0) {
         gclongjmp(&processjmpbuf, 1);
     }
 #endif
@@ -274,8 +274,8 @@ void HuPrcCall(s32 tick)
         if (!process) {
             return;
         }
-#ifdef TARGET_PC
-#else
+#ifdef __MWERKS__
+        // unused
         procfunc = process->jump.lr;
 #endif
         if ((process->stat & (PROCESS_STAT_PAUSE | PROCESS_STAT_UPAUSE)) && process->exec != EXEC_KILLED) {
@@ -296,7 +296,7 @@ void HuPrcCall(s32 tick)
 
             case EXEC_CHILDWATCH:
                 if (process->child) {
-                    ret = 1;
+                    ret = 1;    
                 }
                 else {
                     process->exec = EXEC_NORMAL;

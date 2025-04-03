@@ -108,7 +108,7 @@ void main(void)
 #else
     HuSysInit(&GXPal528IntDf);
 #endif
-     //HuPrcInit();
+    HuPrcInit();
     // HuPadInit();
     // GWInit();
     // pfInit();
@@ -168,10 +168,10 @@ void main(void)
          HuPerfBegin(0);
          Hu3DPreProc();
          HuPadRead();
-         pfClsScr();
+         pfClsScr();*/
 
          HuPrcCall(1);
-         MGSeqMain();
+        /* MGSeqMain();
          HuPerfBegin(1);
          Hu3DExec();
          HuDvdErrorWatch();

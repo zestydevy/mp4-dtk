@@ -3,12 +3,7 @@
 
 #include "dolphin/types.h"
 
-#ifdef TARGET_PC
-#include <setjmp.h>
-typedef int JMPBUF;
-#else
 #include "game/jmp.h"
-#endif
 
 #define PROCESS_STAT_PAUSE 0x1
 #define PROCESS_STAT_UPAUSE 0x2
@@ -28,7 +23,7 @@ typedef struct process {
     u16 prio;
     s32 sleep_time;
     u32 base_sp;
-    JMPBUF jump;
+    jmp_buf jump;
     void (*dtor)(void);
     void *user_data;
 } Process;
