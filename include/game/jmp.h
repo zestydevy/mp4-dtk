@@ -143,8 +143,8 @@ typedef struct _JUMP_BUFFER {
 #define SETJMP_SET_IP(jump, func) ((_JUMP_BUFFER *)((jump)))->Lr = (size_t)func
 #define SETJMP_SET_SP(jump, sp) ((_JUMP_BUFFER *)((jump)))->Sp = (size_t)sp
 #elif defined(__riscv)
-#define SETJMP_SET_IP(jump, func) ((_JUMP_BUFFER *)((jump)))->Lr = (size_t)func
-#define SETJMP_SET_SP(jump, sp) ((_JUMP_BUFFER *)((jump)))->Sp = (size_t)sp
+#define SETJMP_SET_IP(jump, func) ((_JUMP_BUFFER *)((jump)))->ra = (size_t)func
+#define SETJMP_SET_SP(jump, sp) ((_JUMP_BUFFER *)((jump)))->sp = (size_t)sp
 #endif
 
 #else
