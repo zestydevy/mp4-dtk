@@ -7,6 +7,7 @@ static inline u32 frandom(u32 param)
     s32 rand2, rand3;
 
     if (param == 0) {
+        extern s32 rand8(void);
         param = rand8();
         param = param ^ (s64)OSGetTime();
         param ^= 0xD826BC89;

@@ -1,7 +1,5 @@
-extern "C"
-{
+
 #include "port/imgui.h"
-}
 
 #include <array>
 #include <atomic>

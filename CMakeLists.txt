@@ -1,7 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
-project(marioparty4 LANGUAGES C CXX)
+project(marioparty4 LANGUAGES C CXX OBJC)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
+
+# Set build type to Debug if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+# Debug-specific flags
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-parameter")
@@ -12,12 +21,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX 32)
 endif ()
 
+if(APPLE)
+  add_compile_options(-Wno-declaration-after-statement)
+endif()
+
 add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
-add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
+#add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 set(DOLPHIN_FILES
     src/dolphin/os/OSAlloc.c
     src/dolphin/os/OSArena.c
+    #src/dolphin/pad/Pad.c
+    #src/dolphin/si/SIBios.c
+    #src/dolphin/si/SISamplingRate.c
 )
 
 set(GAME_FILES
@@ -29,6 +45,10 @@ set(GAME_FILES
     src/game/memory.c
     src/game/init.c
     src/game/process.c
+    src/game/gamework.c
+    src/game/flag.c
+    src/game/printfunc.c
+    #src/game/pad.c
 )
 
 set(PORT_FILES
@@ -44,8 +64,15 @@ source_group("Dolphin" FILES ${DOLPHIN_FILES})
 source_group("Game" FILES ${GAME_FILES})
 source_group("Port" FILES ${PORT_FILES})
 
+foreach(file ${DOLPHIN_FILES})
+set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-std=c89 -Dinline=")
+endforeach()
+foreach(file ${GAME_FILES})
+set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-std=c89 -Dinline=")
+endforeach()
+
 add_executable(marioparty4 ${DOLPHIN_FILES} ${GAME_FILES} ${PORT_FILES})
 target_compile_definitions(marioparty4 PRIVATE TARGET_PC VERSION=0)
-target_compile_definitions(musyx PRIVATE MUSY_VERSION_MAJOR=1 MUSY_VERSION_MINOR=5 MUSY_VERSION_PATCH=4)
+#target_compile_definitions(musyx PRIVATE MUSY_VERSION_MAJOR=1 MUSY_VERSION_MINOR=5 MUSY_VERSION_PATCH=4)
 target_include_directories(marioparty4 PRIVATE include)
-target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main musyx)
+target_link_libraries(marioparty4 PRIVATE aurora::aurora aurora::main)

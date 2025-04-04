@@ -5,6 +5,7 @@
 
 
 extern OSTime __OSGetSystemTime();
+extern u32 VIGetCurrentLine(void);
 
 typedef struct SIControl {
     s32 chan;

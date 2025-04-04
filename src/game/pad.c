@@ -1,5 +1,7 @@
+#include <stdlib.h>
+
 #include "dolphin.h"
-#include "game/msm.h"
+//#include "game/msm.h"
 #include "game/pad.h"
 
 
@@ -166,7 +168,7 @@ static void PadReadVSync(u32 retraceCount)
             PADReset(chan);
         }
     }
-    msmSysRegularProc();
+    //msmSysRegularProc();
     VCounter++;
 }
 

@@ -16,7 +16,7 @@ struct memory_block {
     u32 retaddr;
 };
 
-static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, u32 retaddr);
+static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, size_t retaddr);
 
 void *HuMemHeapInit(void *ptr, s32 size)
 {
@@ -48,7 +48,7 @@ static void *HuMemMemoryAlloc2(void *heap_ptr, s32 size, u32 num, size_t retaddr
     do {
         if(!block->flag && block->size >= alloc_size) {
             if(block->size-alloc_size > 32u) {
-                struct memory_block *new_block = (struct memory_block *)(((u32)block)+alloc_size);
+                struct memory_block *new_block = (struct memory_block *)(((char *)block)+alloc_size);
                 new_block->size = block->size-alloc_size;
                 new_block->magic = 205;
                 new_block->flag = 0;

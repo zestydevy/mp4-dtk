@@ -30,15 +30,22 @@ static inline void InitPlayerConfig(void)
         config->pad_idx = i;
         config->diff = 0;
         config->group = i;
-        if (!HuPadStatGet(i)) {
-            config->iscom = 0;
-        }
-        else {
+        // TODO: get pad.c working
+        //if (!HuPadStatGet(i)) {
+        //    config->iscom = 0;
+        //}
+        //else {
             config->iscom = 1;
-        }
+        //}
     }
 }
 
+// TODO: get these properly declared somewhere
+extern void GWRumbleSet(s32 value);
+extern void GWMGExplainSet(s32 value);
+extern void GWMGShowComSet(s32 value);
+extern void GWMessSpeedSet(s32 value);
+extern void GWSaveModeSet(s32 value);
 static inline void ResetBoardSettings(void)
 {
     GWRumbleSet(1);

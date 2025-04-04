@@ -1,3 +1,4 @@
+#include <string.h>
 #include "dolphin.h"
 #include "game/gamework_data.h"
 

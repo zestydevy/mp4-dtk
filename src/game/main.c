@@ -6,7 +6,6 @@
 #include "game/hsfman.h"
 #include "game/init.h"
 #include "game/minigame_seq.h"
-#include "game/msm.h"
 #include "game/object.h"
 #include "game/pad.h"
 #include "game/perf.h"
@@ -109,9 +108,9 @@ void main(void)
     HuSysInit(&GXPal528IntDf);
 #endif
     HuPrcInit();
-    // HuPadInit();
-    // GWInit();
-    // pfInit();
+    //HuPadInit();
+    GWInit();
+    pfInit();
     // GlobalCounter = 0;
     // HuSprInit();
     // Hu3DInit();
